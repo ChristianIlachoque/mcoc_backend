@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// MODELS MCOC App
+model GroupWar {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  assignmentDefense AssignmentDefense[]
+  assignmentAttack AssignmentAttack[]
+}
+
+model AssignmentDefense {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  rosterUserChampionId String @unique
+  rosterUserChampion RosterUserChampion @relation(fields: [rosterUserChampionId], references: [id])
+  allianceMemberId String
+  allianceMember AllianceMember @relation(fields: [allianceMemberId], references: [id])
+  groupWarId String
+  groupWar GroupWar @relation(fields: [groupWarId], references: [id])
+}
+
+model AssignmentAttack {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  rosterUserChampionId String @unique
+  rosterUserChampion RosterUserChampion @relation(fields: [rosterUserChampionId], references: [id])
+  allianceMemberId String
+  allianceMember AllianceMember @relation(fields: [allianceMemberId], references: [id])
+  groupWarId String
+  groupWar GroupWar @relation(fields: [groupWarId], references: [id])
+}
+
+model AllianceMember {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  rol String
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  allianceId String
+  alliance Alliance @relation(fields: [allianceId], references: [id])
+  assignmentDefense AssignmentDefense[]
+  assignmentAttack AssignmentAttack[]
+}
+
+model Alliance {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  prestige Int
+  minimunPrestige Int
+  lastLeagueId String
+  lastLeague League @relation(fields: [lastLeagueId], references: [id])
+  availability Boolean @default(true)
+  privacity String
+  warPower Int
+  alliancePower Int
+  numberMembers Int
+  allianceMember AllianceMember[]
+}
+
+model League {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  icon String
+  alliance Alliance[]
+}
+
+model RosterUserChampion {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  tier Int
+  rank Int
+  isDuplicate Boolean
+  sing Int
+  isAscendite Boolean
+  prestige Int
+  isDefense Boolean
+  isAttack Boolean
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  championId String
+  champion Champion @relation(fields: [championId], references: [id])
+  assignmentDefense AssignmentDefense?
+  assignmentAttack AssignmentAttack?
+}
+
+model RosterUserRelic {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  tier Int
+  rank Int
+  isDuplicate Boolean
+  sing Int
+  prestige Int
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  relicId String
+  relic Relic @relation(fields: [relicId], references: [id])
+}
+
+model User {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  userName String
+  password String
+  email String @unique
+  nickName String
+  prestige Int
+  rosterUserRelic RosterUserRelic[]
+  rosterUserChampion RosterUserChampion[]
+  allianceMember AllianceMember?
+}
+
+model ChampionLabel {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  championId String
+  champion Champion @relation(fields: [championId], references: [id])
+  labelId String
+  label Label @relation(fields: [labelId], references: [id])
+}
+
+model Champion {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  image String
+  classId String
+  class ClassOther @relation(fields: [classId], references: [id])
+  championLabel ChampionLabel[]
+  rosterUserChampion RosterUserChampion[]
+}
+
+model Relic {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  image String
+  classId String
+  class ClassOther @relation(fields: [classId], references: [id])
+  rosterUserRelic RosterUserRelic[]
+}
+
+model ClassOther {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  icon String
+  relic Relic[]
+  champion Champion[]
+}
+
+model Label {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  groupLabelId String
+  groupLabel GroupLabel @relation(fields: [groupLabelId], references: [id])
+  championLabel ChampionLabel[]
+}
+
+model GroupLabel {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  isActive Boolean @default(true)
+  name String
+  labels Label[]
+}
